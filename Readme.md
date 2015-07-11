@@ -12,6 +12,7 @@ Using this utility, these downloaded songs can be converted to universal music f
 
 Usage:
 
+0. Download the JAR file from the binaries folder.
 1. Retrieve the downloaded songs from your mobile and copy to a specific folder. Lets assume the folder structure to be 'C:\Gaana\Songs\' [Ways to do this coming soon..]
 2. Place the GaanaExtractor-<version>.jar in the parent folder 'C:\Gaana\'
 3. Open a command prompt and navigate to 'C:\Gaana\'
