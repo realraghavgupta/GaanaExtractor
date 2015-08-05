@@ -15,11 +15,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
-import net.minidev.json.JSONArray;
-import net.minidev.json.JSONObject;
-import net.minidev.json.JSONValue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +26,10 @@ import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
 import com.mpatric.mp3agic.NotSupportedException;
 import com.mpatric.mp3agic.UnsupportedTagException;
+
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
+import net.minidev.json.JSONValue;
 
 public class MainExtractor {
 	static final Logger logger = LogManager.getLogger(MainExtractor.class.getName());
@@ -50,7 +49,8 @@ public class MainExtractor {
 		fileIds = getFileIds(srcPath);
 		JSONObject songMeta = getSongsDetail(fileIds);
 		if (songMeta != null) {
-			System.out.println(JsonPath.read(songMeta, "$.tracks[0].track_id"));
+			// System.out.println(JsonPath.read(songMeta,
+			// "$.tracks[0].track_id"));
 			copyConvert(fileIds, songMeta, trgtPath);
 		}
 
@@ -78,11 +78,9 @@ public class MainExtractor {
 				System.out.println(strBasePath);
 				System.out.println(songMeta.toJSONString());
 				System.out.println(strBasePath + "album_title");
-				String strAlbum = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "album_title"))
-						.get(0);
-				String strFileName = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "track_title"))
-						.get(0);
-				String trgFolderPath = trgtPath + "/" + strAlbum;				
+				String strAlbum = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "album_title")).get(0);
+				String strFileName = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "track_title")).get(0);
+				String trgFolderPath = trgtPath + "/" + strAlbum;
 				File trgtFolder = new File(trgFolderPath);
 				if (!trgtFolder.exists()) {
 					trgtFolder.mkdirs();
@@ -90,29 +88,31 @@ public class MainExtractor {
 				String trgtFilePath = trgtFolder.getAbsolutePath() + "/" + strFileName + ".mp3";
 				String strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "album_title")).get(0);
 				id3v2Tag.setAlbum(strData);
-				
+
 				strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "track_title")).get(0);
 				id3v2Tag.setTitle(strData);
 
 				strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "lyrics_url")).get(0);
 				id3v2Tag.setUrl(strData);
-				
-//				JSONArray arrArtist = (JSONArray) ((JSONArray) JsonPath.read(songMeta, strBasePath + "artist")).get(0);
-//				String artists = "";
-//				for (Object objArtist : arrArtist) {
-//					JSONObject jsonArtist = (JSONObject)objArtist;
-//					String artist = jsonArtist.getAsString("name");
-//					if(artists.isEmpty()){
-//						artists = artist;
-//					}else{
-//						artists = artists + "/" + artist;
-//					}
-//				}
-//				id3v2Tag.setAlbumArtist(artists);
+
+				// JSONArray arrArtist = (JSONArray) ((JSONArray)
+				// JsonPath.read(songMeta, strBasePath + "artist")).get(0);
+				// String artists = "";
+				// for (Object objArtist : arrArtist) {
+				// JSONObject jsonArtist = (JSONObject)objArtist;
+				// String artist = jsonArtist.getAsString("name");
+				// if(artists.isEmpty()){
+				// artists = artist;
+				// }else{
+				// artists = artists + "/" + artist;
+				// }
+				// }
+				// id3v2Tag.setAlbumArtist(artists);
 
 				strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "artwork")).get(0);
 				byte[] strImgData = getByteArray(strData);
-				id3v2Tag.setAlbumImage(strImgData, ".mp3");;
+				id3v2Tag.setAlbumImage(strImgData, ".mp3");
+				;
 				mp3file.save(trgtFilePath);
 			} catch (UnsupportedTagException | InvalidDataException | IOException | NotSupportedException
 					| IllegalArgumentException | SecurityException e) {
@@ -124,30 +124,64 @@ public class MainExtractor {
 		logger.trace("Exit copyConvert");
 	}
 
-
 	private static JSONObject getSongsDetail(Map<Integer, Path> fileIds) {
 		logger.trace("Into getSongsDetail");
 		String endPoint = "http://api.gaana.com/";
+		JSONObject songsDetail = new JSONObject();
+		JSONObject songsDetailFull = new JSONObject();
+		JSONArray tracks = new JSONArray();		
+		JSONArray tracksFull = new JSONArray();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("type", "song");
 		params.put("subtype", "song_detail");
-		String songIds = "";
 		if (!fileIds.isEmpty()) {
-			songIds = fileIds.keySet().stream().map(Object::toString).collect(Collectors.joining(","));
-			params.put("track_id", songIds);
-			try {
-				String songMeta = HTTPHelper.sendGet(endPoint, params);
-				System.out.println(songMeta);
-				logger.trace("Exit getSongsDetail");
-				return (JSONObject) JSONValue.parse(songMeta);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// songIds =
+			// fileIds.keySet().stream().map(Object::toString).collect(Collectors.joining(","));
+			int i = 0;
+			String strFileIds = "";
+			for (Integer fileId : fileIds.keySet()) {
+				i = i + 1;
+				if (strFileIds == "") {
+					strFileIds = fileId.toString();
+				} else {
+					strFileIds = strFileIds + "," + fileId.toString();
+				}
+				if (i == 10) {
+					params.put("track_id", strFileIds);
+					songsDetail = getSongsDetail(endPoint, params);
+					tracks = (JSONArray) songsDetail.get("tracks");
+					tracksFull.addAll(tracks);
+					i = 0;
+					strFileIds = "";
+				}
 			}
-
+			if(!strFileIds.isEmpty()){
+				params.put("track_id", strFileIds);
+				songsDetail = getSongsDetail(endPoint, params);
+				tracks = (JSONArray) songsDetail.get("tracks");
+				tracksFull.addAll(tracks);
+				i = 0;
+				strFileIds = "";				
+			}
+			
+			songsDetailFull.put("tracks", tracksFull);
+			return songsDetailFull;
 		}
 		logger.trace("Exit getSongsDetail");
 		return null;
+	}
+
+	public static JSONObject getSongsDetail(String endPoint, Map<String, String> params) {
+		try {
+			String songMeta = HTTPHelper.sendGet(endPoint, params);
+			System.out.println(songMeta);
+			logger.trace("Exit getSongsDetail");
+			return (JSONObject) JSONValue.parse(songMeta);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	public static Map<Integer, Path> getFileIds(String path) {
@@ -179,32 +213,33 @@ public class MainExtractor {
 		return fileIds;
 
 	}
-	
-	private static byte[] getByteArray(String strURL){
+
+	private static byte[] getByteArray(String strURL) {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		InputStream is = null;
 		try {
 			URL url = new URL(strURL);
-		  is = url.openStream ();
-		  byte[] byteChunk = new byte[4096]; // Or whatever size you want to read in at a time.
-		  int n;
+			is = url.openStream();
+			byte[] byteChunk = new byte[4096]; // Or whatever size you want to
+												// read in at a time.
+			int n;
 
-		  while ( (n = is.read(byteChunk)) > 0 ) {
-		    baos.write(byteChunk, 0, n);
-		  }
-		  return(baos.toByteArray());
-		}
-		catch (IOException e) {
-		  e.printStackTrace ();
-		}
-		finally {
-		  if (is != null) { try {
-			is.close();
+			while ((n = is.read(byteChunk)) > 0) {
+				baos.write(byteChunk, 0, n);
+			}
+			return (baos.toByteArray());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} }
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
 		}
 		return null;
 	}

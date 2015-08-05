@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>in.pathri.gaanaextractor</groupId>
 	<artifactId>GaanaExtractor</artifactId>
-	<version>1.0</version>
+	<version>1.2</version>
 	<name>GaanaExtractor</name>
 	<description>Extracts Songs from Gaana Android App</description>
 	<dependencies>
