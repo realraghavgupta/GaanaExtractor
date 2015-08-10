@@ -24,3 +24,6 @@ Usage:
 6. Enjoy the songs!
 
 Note : Internet connected is required for this utility to get the song details from the Gaana Server.
+
+
+[![Join the chat at https://gitter.im/PathriK/GaanaExtractor](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/PathriK/GaanaExtractor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
