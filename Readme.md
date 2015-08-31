@@ -37,13 +37,13 @@ Note : Internet connected is required for this utility to get the song details f
 CHANGELOG:
 
 v1.2:
--Now mp3 and mp4(m4a/aac) formats are supported.
--Will skip the songs for which there are no details in DB and prompt the skipped the files in the end.
--Will skip the files for which errors happened and prompt the skipped the files in the end.
--Added an option for selecting whether files need to be organised based on Album names
+- Now mp3 and mp4(m4a/aac) formats are supported.
+- Will skip the songs for which there are no details in DB and prompt the skipped the files in the end.
+- Will skip the files for which errors happened and prompt the skipped the files in the end.
+- Added an option for selecting whether files need to be organised based on Album names
 
 v1.1:
--Fixed the inability to handle more than 10 songs in a single run.
+- Fixed the inability to handle more than 10 songs in a single run.
 
 v1.0:
 - Initial Release
