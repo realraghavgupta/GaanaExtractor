@@ -6,7 +6,32 @@
 	<version>1.2</version>
 	<name>GaanaExtractor</name>
 	<description>Extracts Songs from Gaana Android App</description>
+	<developers>
+		<developer>
+			<id>PathriK</id>
+			<name>Keerthi Kumar P</name>
+			<email>pathrikumark@gmail.com</email>
+			<organization>Home</organization>
+			<roles>
+				<role>Coding Hobbyist</role>
+			</roles>
+		</developer>
+	</developers>
+	<properties>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+	</properties>
+	<repositories>
+		<repository>
+			<!--mvn deploy:deploy-file -Durl=file:///../GaanaExtractor/repo -Dfile=..\Downloads\jaudiotagger-2.2.4-SNAPSHOT.jar 
+				-DgroupId=net.jthink -DartifactId=jaudiotagger -Dpackaging=jar -Dversion=2.2.4-SNAPSHOT -->
+			<id>project.local</id>
+			<name>project</name>
+			<url>file:${project.basedir}/repo</url>
+		</repository>
+	</repositories>
 	<dependencies>
+
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-core</artifactId>
@@ -27,6 +52,12 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.12</version>
 		</dependency>
+
+		<dependency>
+			<groupId>net.jthink</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>2.2.4-PATHRIK-1.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -40,8 +71,8 @@
 						<goals>
 							<goal>shade</goal>
 						</goals>
-						<configuration>	
-				<outputFile>binaries/${project.artifactId}-${project.version}.jar</outputFile>						
+						<configuration>
+							<outputFile>binaries/${project.artifactId}-${project.version}.jar</outputFile>
 							<transformers>
 								<transformer
 									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">

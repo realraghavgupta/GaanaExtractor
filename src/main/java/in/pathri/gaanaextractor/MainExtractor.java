@@ -12,20 +12,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.CannotWriteException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagException;
+import org.jaudiotagger.tag.images.Artwork;
+import org.jaudiotagger.tag.images.ArtworkFactory;
 
 import com.jayway.jsonpath.JsonPath;
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.ID3v24Tag;
-import com.mpatric.mp3agic.InvalidDataException;
-import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.NotSupportedException;
-import com.mpatric.mp3agic.UnsupportedTagException;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -33,14 +41,19 @@ import net.minidev.json.JSONValue;
 
 public class MainExtractor {
 	static final Logger logger = LogManager.getLogger(MainExtractor.class.getName());
+	static List<String> data404 = new ArrayList<String>();
+	static List<String> fileError = new ArrayList<String>();
 
 	public static void main(String[] args) {
 		logger.entry();
-		extract(args[0]);
+		boolean toAlbumFolder = Boolean.valueOf(args[1]);
+		extract(args[0], toAlbumFolder);
+		System.out.println("File Data Not Found : " + data404.stream().collect(Collectors.joining(";")));
+		System.out.println("File Read Error : " + fileError.stream().collect(Collectors.joining(";")));
 		logger.exit();
 	}
 
-	private static void extract(String srcPath) {
+	private static void extract(String srcPath, boolean toAlbumFolder) {
 		// srcPath = "workspace";
 		String trgtFolder = "converted";
 		String trgtPath = srcPath + ((srcPath.endsWith("/") | srcPath.endsWith("\\")) ? "" : "/") + trgtFolder;
@@ -51,72 +64,73 @@ public class MainExtractor {
 		if (songMeta != null) {
 			// System.out.println(JsonPath.read(songMeta,
 			// "$.tracks[0].track_id"));
-			copyConvert(fileIds, songMeta, trgtPath);
+			copyConvert(fileIds, songMeta, trgtPath, toAlbumFolder);
 		}
 
 		logger.trace("Exit Extract");
 	}
 
-	private static void copyConvert(Map<Integer, Path> fileIds, JSONObject songMeta, String trgtPath) {
+	private static void copyConvert(Map<Integer, Path> fileIds, JSONObject songMeta, String trgtPath,
+			boolean toAlbumFolder) {
 		logger.trace("Into copyConvert");
 		for (Entry<Integer, Path> fileEntry : fileIds.entrySet()) {
 			String fileName = fileEntry.getKey().toString();
-			System.out.println(fileEntry.getValue().toAbsolutePath());
+//			System.out.println(fileEntry.getValue().toAbsolutePath());
 			File srcFile = fileEntry.getValue().toFile();
 			try {
-				Mp3File mp3file = new Mp3File(srcFile);
-				ID3v2 id3v2Tag;
-				if (mp3file.hasId3v2Tag()) {
-					id3v2Tag = mp3file.getId3v2Tag();
-				} else {
-					// mp3 does not have an ID3v2 tag, let's create one..
-					id3v2Tag = new ID3v24Tag();
-					mp3file.setId3v2Tag(id3v2Tag);
-				}
-				// id3v2Tag.set
+				AudioFile f = AudioFileIO.readMagic(srcFile);
+				Tag tag = f.getTag();
+
 				String strBasePath = "$.tracks[?(@.track_id==" + fileName + ")].";
-				System.out.println(strBasePath);
-				System.out.println(songMeta.toJSONString());
-				System.out.println(strBasePath + "album_title");
-				String strAlbum = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "album_title")).get(0);
-				String strFileName = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "track_title")).get(0);
-				String trgFolderPath = trgtPath + "/" + strAlbum;
-				File trgtFolder = new File(trgFolderPath);
-				if (!trgtFolder.exists()) {
-					trgtFolder.mkdirs();
+//				System.out.println(strBasePath);
+//				System.out.println(songMeta.toJSONString());
+//				System.out.println(strBasePath + "album_title");
+
+				JSONArray arrFileName = (JSONArray) JsonPath.read(songMeta, strBasePath + "track_title");
+				if (!arrFileName.isEmpty()) {
+					String strFileName = (String) (arrFileName).get(0);
+					strFileName = FileNameCleaner.cleanFileName(strFileName);
+
+					String trgFolderPath = trgtPath;
+
+					if (toAlbumFolder) {
+						String strFolderName = (String) ((JSONArray) JsonPath.read(songMeta,
+								strBasePath + "album_title")).get(0);
+						strFolderName = FileNameCleaner.cleanFileName(strFolderName);
+
+						trgFolderPath = trgFolderPath + "/" + strFolderName;
+					}
+					File trgtFolder = new File(trgFolderPath);
+					if (!trgtFolder.exists()) {
+						trgtFolder.mkdirs();
+					}
+
+					String trgtFilePath = trgtFolder.getAbsolutePath() + "/" + strFileName;
+					String strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "album_title")).get(0);
+					tag.setField(FieldKey.ALBUM, strData);
+
+					strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "track_title")).get(0);
+					tag.setField(FieldKey.TITLE, strData);
+
+					strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "lyrics_url")).get(0);
+					tag.setField(FieldKey.URL_LYRICS_SITE, strData);
+
+					strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "artwork")).get(0);
+					byte[] strImgData = getByteArray(strData);
+					Artwork artwork = ArtworkFactory.getNew();
+					artwork.setBinaryData(strImgData);
+					tag.setField(artwork);
+
+					AudioFileIO.writeAs(f, trgtFilePath);
+				} else {
+//					System.out.println("File Data Not Found : " + fileName);
+					data404.add(fileName);
 				}
-				String trgtFilePath = trgtFolder.getAbsolutePath() + "/" + strFileName + ".mp3";
-				String strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "album_title")).get(0);
-				id3v2Tag.setAlbum(strData);
 
-				strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "track_title")).get(0);
-				id3v2Tag.setTitle(strData);
-
-				strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "lyrics_url")).get(0);
-				id3v2Tag.setUrl(strData);
-
-				// JSONArray arrArtist = (JSONArray) ((JSONArray)
-				// JsonPath.read(songMeta, strBasePath + "artist")).get(0);
-				// String artists = "";
-				// for (Object objArtist : arrArtist) {
-				// JSONObject jsonArtist = (JSONObject)objArtist;
-				// String artist = jsonArtist.getAsString("name");
-				// if(artists.isEmpty()){
-				// artists = artist;
-				// }else{
-				// artists = artists + "/" + artist;
-				// }
-				// }
-				// id3v2Tag.setAlbumArtist(artists);
-
-				strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "artwork")).get(0);
-				byte[] strImgData = getByteArray(strData);
-				id3v2Tag.setAlbumImage(strImgData, ".mp3");
-				;
-				mp3file.save(trgtFilePath);
-			} catch (UnsupportedTagException | InvalidDataException | IOException | NotSupportedException
-					| IllegalArgumentException | SecurityException e) {
+			} catch (IOException | IllegalArgumentException | SecurityException | CannotWriteException
+					| CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
 				// TODO Auto-generated catch block
+				fileError.add(fileName);
 				e.printStackTrace();
 			}
 
@@ -129,14 +143,12 @@ public class MainExtractor {
 		String endPoint = "http://api.gaana.com/";
 		JSONObject songsDetail = new JSONObject();
 		JSONObject songsDetailFull = new JSONObject();
-		JSONArray tracks = new JSONArray();		
+		JSONArray tracks = new JSONArray();
 		JSONArray tracksFull = new JSONArray();
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("type", "song");
 		params.put("subtype", "song_detail");
 		if (!fileIds.isEmpty()) {
-			// songIds =
-			// fileIds.keySet().stream().map(Object::toString).collect(Collectors.joining(","));
 			int i = 0;
 			String strFileIds = "";
 			for (Integer fileId : fileIds.keySet()) {
@@ -150,20 +162,24 @@ public class MainExtractor {
 					params.put("track_id", strFileIds);
 					songsDetail = getSongsDetail(endPoint, params);
 					tracks = (JSONArray) songsDetail.get("tracks");
+					if(tracks != null && !tracks.isEmpty()){
 					tracksFull.addAll(tracks);
+					}
 					i = 0;
 					strFileIds = "";
 				}
 			}
-			if(!strFileIds.isEmpty()){
+			if (!strFileIds.isEmpty()) {
 				params.put("track_id", strFileIds);
 				songsDetail = getSongsDetail(endPoint, params);
 				tracks = (JSONArray) songsDetail.get("tracks");
+				if(tracks != null && !tracks.isEmpty()){
 				tracksFull.addAll(tracks);
+				}
 				i = 0;
-				strFileIds = "";				
+				strFileIds = "";
 			}
-			
+
 			songsDetailFull.put("tracks", tracksFull);
 			return songsDetailFull;
 		}
@@ -222,7 +238,7 @@ public class MainExtractor {
 			URL url = new URL(strURL);
 			is = url.openStream();
 			byte[] byteChunk = new byte[4096]; // Or whatever size you want to
-												// read in at a time.
+			// read in at a time.
 			int n;
 
 			while ((n = is.read(byteChunk)) > 0) {

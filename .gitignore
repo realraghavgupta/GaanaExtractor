@@ -56,3 +56,4 @@ hs_err_pid*
 
 #*********User Specific*****
 /workspace/
+*.bkup
