@@ -13,11 +13,14 @@ import org.apache.logging.log4j.Logger;
 
 public class HTTPHelper {
 	private final static String USER_AGENT = "Mozilla/5.0";
-	static final Logger logger = LogManager.getLogger(MainExtractor.class.getName());
+	private final static String APP_VERSION = "V7";
+	private final static String DEVICE_TYPE = "GaanaAndroidApp";	
+	
+	static final Logger logger = LogManager.getLogger();
 
 	// HTTP GET request
 	public static String sendGet(String endPoint, Map<String, String> params) throws Exception {
-		logger.entry();
+		logger.entry(endPoint,params);
 		String query = params.entrySet().stream().map(param -> {
 			try {
 				return URLEncoder.encode(param.getKey(), "UTF-8") + "=" + URLEncoder.encode(param.getValue(), "UTF-8");
@@ -29,7 +32,7 @@ public class HTTPHelper {
 
 		endPoint = endPoint + (endPoint.endsWith("/") ? "?" : "/?");
 		endPoint = endPoint + query;
-		logger.info(endPoint);
+		logger.debug("EndPoint:: {}",endPoint);
 		URL obj = new URL(endPoint);
 		HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
@@ -38,7 +41,9 @@ public class HTTPHelper {
 
 		// add request header
 		con.setRequestProperty("User-Agent", USER_AGENT);
-		logger.info(con.getRequestProperties());
+		con.setRequestProperty("appVersion", APP_VERSION);
+		con.setRequestProperty("deviceType", DEVICE_TYPE);
+		logger.debug("Connection Req Properties:: {}",con.getRequestProperties());
 		// int responseCode = con.getResponseCode();
 		// System.out.println("Response Code : " + responseCode);
 
@@ -51,9 +56,7 @@ public class HTTPHelper {
 		}
 		in.close();
 		
-		// print result
-		// System.out.println(response.toString());
-		logger.exit();
+		logger.traceExit(response);
 		return response.toString();
 	}
 }

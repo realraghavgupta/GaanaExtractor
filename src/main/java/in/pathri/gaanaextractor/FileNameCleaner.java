@@ -2,14 +2,20 @@ package in.pathri.gaanaextractor;
 
 import java.util.Arrays;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class FileNameCleaner {
 	  final static int[] illegalChars = {34, 60, 62, 124, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 58, 42, 63, 92, 47};
 
 	  static {
 	    Arrays.sort(illegalChars);
 	  }
+	  
+	  static final Logger logger = LogManager.getLogger();
 
 	  public static String cleanFileName(String badFileName) {
+		  logger.entry(badFileName);
 	    StringBuilder cleanName = new StringBuilder();
 	    int len = badFileName.codePointCount(0, badFileName.length());
 	    for (int i=0; i<len; i++) {
@@ -18,6 +24,7 @@ public class FileNameCleaner {
 	        cleanName.appendCodePoint(c);	      
 	      }
 	    }
+	    logger.traceExit(cleanName);
 	    return cleanName.toString();
 	  }
 	}
