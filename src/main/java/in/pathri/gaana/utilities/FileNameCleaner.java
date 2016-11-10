@@ -1,4 +1,4 @@
-package in.pathri.gaanaextractor;
+package in.pathri.gaana.utilities;
 
 import java.util.Arrays;
 

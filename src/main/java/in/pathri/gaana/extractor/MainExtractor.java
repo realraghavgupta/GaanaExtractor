@@ -1,4 +1,4 @@
-package in.pathri.gaanaextractor;
+package in.pathri.gaana.extractor;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -37,6 +37,8 @@ import org.jaudiotagger.tag.images.ArtworkFactory;
 
 import com.jayway.jsonpath.JsonPath;
 
+import in.pathri.gaana.utilities.FileNameCleaner;
+import in.pathri.gaana.utilities.HTTPHelper;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
@@ -57,11 +59,9 @@ public class MainExtractor {
 		if(args.length == 0){
 			songsDir = System.getProperty("user.dir");
 			logger.info("**NOTE**:Using the current location of JAR as the location of songs. To override please start with the song location as an argument to the JAR");
-			//System.out.println("Using the current location of JAR as the location of songs. To override please start with the song location as an argument to the JAR");
 		}else if(args.length == 1){
 			songsDir = args[0];
 			logger.info("**NOTE**:Converted songs will be grouped into folders based on their Albums. To disable please supply 'false' as a second argument to the JAR");
-			//System.out.println("Converted songs will be grouped into folders based on their Albums. To disable please supply 'false' as a second argument to the JAR");
 		}else{
 			songsDir = args[0];
 			toAlbumFolder = Boolean.valueOf(args[1]);
@@ -74,25 +74,11 @@ public class MainExtractor {
 			logger.info("**NOTE**:Songs will be grouped into Folders based on Album names");
 		}else{
 			logger.info("**NOTE**:Songs will be converted as is");
-		}
-		
-//		System.out.println("Songs Source Directory::" + songsDir);
-//		System.out.println(toAlbumFolder?"Songs will be grouped into Folders based on Album names":"Songs will be converted as is");
+		}		
 		logger.info(System.lineSeparator());
+
 		extract(songsDir, toAlbumFolder);
 
-		logger.info("{}",() -> prepareFinalStats());
-				
-//		System.out.println("File Data Not Found : " + data404.stream().collect(Collectors.joining(";")));
-//		System.out.println("File Read Error : " + fileReadError.stream().collect(Collectors.joining(";")));
-//		System.out.println("File Write Error : " + fileWriteError.stream().collect(Collectors.joining(";")));
-		
-//		System.out.println("File Write Error : ");
-//		for(Entry<String, ArrayList<String>> entry : fileTagError.entrySet()){
-//			System.out.println("File Name : " + entry.getKey());
-//			System.out.println("Tags : " + entry.getValue().stream().collect(Collectors.joining(";")));
-//		}
-			
 		logger.traceExit();
 	}
 	
@@ -108,7 +94,7 @@ public class MainExtractor {
 		if (songMeta != null) {
 			copyConvert(fileIds, songMeta, trgtPath, toAlbumFolder);
 		}
-
+		logger.info("{}",() -> prepareFinalStats());
 		logger.traceExit();
 	}
 
@@ -120,12 +106,11 @@ public class MainExtractor {
 			ArrayList<String> tagErrors = new ArrayList<String>();			
 			File srcFile = fileEntry.getValue().toFile();
 			logger.info("Converting:: {}",srcFile.getAbsolutePath().replace(srcDir, ""));
-//			System.out.println("Converting::" + srcFile.getAbsolutePath());
 			try {
 				AudioFile f;
 				f = AudioFileIO.readMagic(srcFile);
 				Tag tag = f.getTag();
-
+				//TODO: if tag empty add default Tag. f has predefined functions for that?
 				String strBasePath = "$.tracks[?(@.track_id==" + fileName + ")].";
 
 				JSONArray arrFileName = (JSONArray) JsonPath.read(songMeta, strBasePath + "track_title");
@@ -155,7 +140,6 @@ public class MainExtractor {
 					} catch (KeyNotFoundException | FieldDataInvalidException e) {
 						tagErrors.add("ALBUM");
 						logger.catching(e);
-//						e.printStackTrace();
 					}
 
 					try {
@@ -164,7 +148,6 @@ public class MainExtractor {
 					} catch (KeyNotFoundException | FieldDataInvalidException e) {
 						tagErrors.add("TITLE");
 						logger.catching(e);
-//						e.printStackTrace();
 					}
 
 					try {
@@ -173,7 +156,6 @@ public class MainExtractor {
 					} catch (KeyNotFoundException | FieldDataInvalidException e) {
 						tagErrors.add("LYRICS_URL");
 						logger.catching(e);
-//						e.printStackTrace();
 					}
 
 					try {
@@ -185,7 +167,6 @@ public class MainExtractor {
 					} catch (KeyNotFoundException | FieldDataInvalidException | UnsupportedOperationException e) {
 						tagErrors.add("ART_WORK");
 						logger.catching(e);
-//						e.printStackTrace();
 					}
 					if(!tagErrors.isEmpty()){
 						fileTagError.put(fileName, tagErrors);
@@ -200,11 +181,9 @@ public class MainExtractor {
 					| InvalidAudioFrameException e) {
 				fileReadError.add(fileName);
 				logger.catching(e);
-//				e.printStackTrace();
 			} catch (CannotWriteException e) {
 				fileWriteError.add(fileName);
 				logger.catching(e);
-//				e.printStackTrace();
 			}
 
 		}
@@ -267,11 +246,9 @@ public class MainExtractor {
 		try {
 			String songMeta = HTTPHelper.sendGet(endPoint, params);
 			logger.debug("SongMeta::{}",songMeta);
-//			System.out.println(songMeta);
 			logger.traceExit(songMeta);
 			return (JSONObject) JSONValue.parse(songMeta);
 		} catch (Exception e) {
-//			e.printStackTrace();
 			logger.catching(e);
 			logger.traceExit(null);
 			return null;
@@ -301,7 +278,6 @@ public class MainExtractor {
 		try {
 			Files.walkFileTree(p, fv);
 		} catch (IOException e) {
-//			e.printStackTrace();
 			logger.catching(e);
 		}
 		logger.traceExit(fileIds);
@@ -327,14 +303,12 @@ public class MainExtractor {
 			return (baos.toByteArray());
 		} catch (IOException e) {
 			logger.catching(e);
-//			e.printStackTrace();
 		} finally {
 			if (is != null) {
 				try {
 					is.close();
 				} catch (IOException e) {
 					logger.catching(e);
-//					e.printStackTrace();
 				}
 			}
 		}
@@ -380,9 +354,7 @@ public class MainExtractor {
 				finalStats.append(System.lineSeparator());
 			}			
 		}
-		
-
-		
+		//TODO: Add Success/Failure message		
 		return finalStats.toString();		
 	}	
 }
