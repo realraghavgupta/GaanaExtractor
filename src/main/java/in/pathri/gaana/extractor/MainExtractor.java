@@ -112,7 +112,7 @@ public class MainExtractor {
 			try {
 				AudioFile f;
 				f = AudioFileIO.readMagic(srcFile);
-				Tag tag = f.getTag();
+				Tag tag = f.getTagOrCreateAndSetDefault();
 				//TODO: if tag empty add default Tag. f has predefined functions for that?
 				String strBasePath = "$.tracks[?(@.track_id==" + fileName + ")].";
 
@@ -215,7 +215,9 @@ public class MainExtractor {
 			logger.debug("ReplacedKey::{}",key);
 		}
 		key = key.trim();
-		title = title + " (" + key + ")";
+		if(!key.isEmpty()){
+			title = title + " (" + key + ")";
+		}		
 		logger.traceExit("Computed Title::{}", title);
 		return title;
 	}
