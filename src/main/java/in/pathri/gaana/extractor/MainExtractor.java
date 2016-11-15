@@ -13,6 +13,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.util.ArrayUtils;
+import org.apache.logging.log4j.util.Strings;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -113,11 +116,10 @@ public class MainExtractor {
 				//TODO: if tag empty add default Tag. f has predefined functions for that?
 				String strBasePath = "$.tracks[?(@.track_id==" + fileName + ")].";
 
-				JSONArray arrFileName = (JSONArray) JsonPath.read(songMeta, strBasePath + "track_title");
-				if (!arrFileName.isEmpty()) {
-					String strFileName = (String) (arrFileName).get(0);
-					strFileName = FileNameCleaner.cleanFileName(strFileName);
-
+				JSONArray trackTitle = (JSONArray) JsonPath.read(songMeta, strBasePath + "track_title");
+				JSONArray seoKey = (JSONArray) JsonPath.read(songMeta, strBasePath + "seokey");
+				String strFileName = generateUniqueFileName(trackTitle,seoKey);
+				if (!strFileName.isEmpty()) {
 					String trgFolderPath = trgtPath;
 
 					if (toAlbumFolder) {
@@ -189,6 +191,36 @@ public class MainExtractor {
 		}
 		logger.traceExit();
 	}
+
+	private static String generateUniqueFileName(JSONArray trackTitle, JSONArray seoKey) {
+		logger.entry(trackTitle,seoKey);
+		if(trackTitle.isEmpty() || seoKey.isEmpty()){
+			logger.traceExit("EMPTY STRING");
+			return "";
+		}
+		String title = trackTitle.get(0).toString();
+		logger.debug("title::" + title);
+		String key = seoKey.get(0).toString();
+		logger.debug("key::" + key);
+		if(key.isEmpty()){
+			logger.traceExit("Original Title::{}", title);
+			return title;
+		}
+		key = key.replace("-"," ");
+		logger.debug("ReplacedKey::{}",key);
+		String[] splitTitle = title.split(" ");
+		for (String titleWord : splitTitle) {
+			logger.debug("ReplacingWord::{}",titleWord);
+			key = key.replace(titleWord.toLowerCase(),"");
+			logger.debug("ReplacedKey::{}",key);
+		}
+		key = key.trim();
+		title = title + " (" + key + ")";
+		logger.traceExit("Computed Title::{}", title);
+		return title;
+	}
+
+
 
 	private static JSONObject getSongsDetail(Map<Integer, Path> fileIds) {
 		logger.entry(fileIds);
