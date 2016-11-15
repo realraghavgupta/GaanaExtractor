@@ -13,7 +13,6 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,8 +21,6 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.util.ArrayUtils;
-import org.apache.logging.log4j.util.Strings;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.audio.exceptions.CannotReadException;
@@ -113,7 +110,6 @@ public class MainExtractor {
 				AudioFile f;
 				f = AudioFileIO.readMagic(srcFile);
 				Tag tag = f.getTagOrCreateAndSetDefault();
-				//TODO: if tag empty add default Tag. f has predefined functions for that?
 				String strBasePath = "$.tracks[?(@.track_id==" + fileName + ")].";
 
 				JSONArray trackTitle = (JSONArray) JsonPath.read(songMeta, strBasePath + "track_title");
@@ -160,6 +156,38 @@ public class MainExtractor {
 						logger.catching(e);
 					}
 
+					try {
+						JSONArray arrData = (JSONArray) JsonPath.read(songMeta, strBasePath + "artist[*].name");
+						logger.debug("ArtistContents::{}",arrData.toJSONString());
+						for (Object datum : arrData) {
+							String artistName = (String)datum;
+							logger.debug("Artist::{}",artistName);
+							artistName = artistName.trim();
+							if(!artistName.isEmpty()){
+								tag.addField(FieldKey.ALBUM_ARTIST, artistName);		
+							}
+						}						
+					} catch (KeyNotFoundException | FieldDataInvalidException e) {
+						tagErrors.add("ARTIST");
+						logger.catching(e);
+					}
+
+					try {
+						JSONArray arrData = (JSONArray) JsonPath.read(songMeta, strBasePath + "gener[*].name");
+						logger.debug("GenreContents::{}",arrData.toJSONString());
+						for (Object datum : arrData) {
+							String genreName = (String)datum;
+							logger.debug("Genre::{}",genreName);
+							genreName = genreName.trim();
+							if(!genreName.isEmpty()){
+								tag.addField(FieldKey.GENRE, genreName);		
+							}
+						}						
+					} catch (KeyNotFoundException | FieldDataInvalidException e) {
+						tagErrors.add("GENRE");
+						logger.catching(e);
+					}
+										
 					try {
 						strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "artwork")).get(0);
 						byte[] strImgData = getByteArray(strData);
@@ -352,19 +380,27 @@ public class MainExtractor {
 	private static String prepareFinalStats(){
 		String statValue = "";
 		final String NONE_VALUE= "NONE";
+		boolean hasError = false;
+		String finalStatus = "";
 		StringBuilder finalStats = new StringBuilder();		
 		
 		finalStats.append("File Data Not Found :: ");
 		statValue = data404.stream().collect(Collectors.joining(";"));
 		statValue = statValue.isEmpty()?NONE_VALUE:statValue;
 		finalStats.append(statValue);
-		
+		if(!statValue.equals(NONE_VALUE)){
+			hasError = true;
+		}
+
 		finalStats.append(System.lineSeparator());
 		
 		finalStats.append("File Read Error :: ");
 		statValue = fileReadError.stream().collect(Collectors.joining(";"));
 		statValue = statValue.isEmpty()?NONE_VALUE:statValue;
 		finalStats.append(statValue);
+		if(!statValue.equals(NONE_VALUE)){
+			hasError = true;
+		}
 		
 		finalStats.append(System.lineSeparator());
 		
@@ -372,6 +408,9 @@ public class MainExtractor {
 		statValue = fileWriteError.stream().collect(Collectors.joining(";"));
 		statValue = statValue.isEmpty()?NONE_VALUE:statValue;
 		finalStats.append(statValue);
+		if(!statValue.equals(NONE_VALUE)){
+			hasError = true;
+		}
 		
 		finalStats.append(System.lineSeparator());
 		
@@ -379,6 +418,7 @@ public class MainExtractor {
 		if(fileTagError.isEmpty()){
 			finalStats.append(NONE_VALUE);
 		}else{
+			hasError = true;
 			finalStats.append(System.lineSeparator());
 			for(Entry<String, ArrayList<String>> entry : fileTagError.entrySet()){
 				finalStats.append("\tFile Name :: ");
@@ -388,7 +428,15 @@ public class MainExtractor {
 				finalStats.append(System.lineSeparator());
 			}			
 		}
-		//TODO: Add Success/Failure message		
+		
+		if(hasError){
+			finalStatus = System.lineSeparator() + "COMPLETED with ERRORS. Following are the details:" + System.lineSeparator() + System.lineSeparator();
+		}else{
+			finalStatus = System.lineSeparator() + "COMPLETED without any ERRORS." + System.lineSeparator() + System.lineSeparator();
+		}
+		
+		finalStats.insert(0, finalStatus);
+		
 		return finalStats.toString();		
 	}	
 }
