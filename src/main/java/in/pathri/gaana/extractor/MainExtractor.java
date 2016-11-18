@@ -82,9 +82,13 @@ public class MainExtractor {
 		logger.traceExit();
 	}
 	
+	/**
+	 * Converts Gaana downloaded music files (named in numbers) to playable audio files with appropriate File Name and Tags 
+	 * @param srcPath		absolute path of the downloaded music files in String format with '/' as the folder separator 
+	 * @param toAlbumFolder	If true, will group music files in folders with Album as their folder names
+	 */
 
-
-	private static void extract(String srcPath, boolean toAlbumFolder) {
+	public static void extract(String srcPath, boolean toAlbumFolder) {
 		logger.entry(srcPath, toAlbumFolder);
 		String trgtFolder = "converted";
 		String trgtPath = srcPath + ((srcPath.endsWith("/") | srcPath.endsWith("\\")) ? "" : "/") + trgtFolder;
@@ -303,7 +307,7 @@ public class MainExtractor {
 		return null;
 	}
 
-	public static JSONObject getSongsDetail(String endPoint, Map<String, String> params) {
+	private static JSONObject getSongsDetail(String endPoint, Map<String, String> params) {
 		logger.entry(endPoint, params);
 		try {
 			String songMeta = HTTPHelper.sendGet(endPoint, params);
@@ -317,7 +321,7 @@ public class MainExtractor {
 		}
 	}
 
-	public static Map<Integer, Path> getFileIds(String path) {
+	private static Map<Integer, Path> getFileIds(String path) {
 		logger.entry(path);
 		final Map<Integer, Path> fileIds = new HashMap<Integer, Path>();
 		Path p = Paths.get(path);
