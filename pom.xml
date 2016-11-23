@@ -147,5 +147,8 @@
          <name>pathrik-PathriK</name>
          <url>https://api.bintray.com/maven/pathrik/PathriK/GaanaExtractor/;publish=1</url>
       </repository>
+<snapshotRepository>
+<id>bintray-pathrik-PathriK-snapshots</id>
+ <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url> </snapshotRepository>      
    </distributionManagement>		
 </project>
