@@ -9,12 +9,12 @@
 	<url>https://github.com/PathriK/GaanaExtractor</url>
 	<inceptionYear>2015</inceptionYear>
 	<issueManagement>
-	   <url>https://github.com/PathriK/GaanaExtractor/issues</url>
+		<url>https://github.com/PathriK/GaanaExtractor/issues</url>
 	</issueManagement>
 	<organization>
-	   <name>PathriK</name>
-	   <url>https://github.com/PathriK</url>
-	</organization>	
+		<name>PathriK</name>
+		<url>https://github.com/PathriK</url>
+	</organization>
 	<developers>
 		<developer>
 			<id>PathriK</id>
@@ -27,16 +27,16 @@
 		</developer>
 	</developers>
 	<licenses>
-	   <license>
-	      <name>LGPL</name>
-	      <url>http://www.gnu.org/copyleft/lesser.html</url>
-	   </license>
-	</licenses>	
+		<license>
+			<name>LGPL</name>
+			<url>http://www.gnu.org/copyleft/lesser.html</url>
+		</license>
+	</licenses>
 	<repositories>
-	    <repository>
-	        <id>jaudiotagger-repository</id>
-	        <url>https://dl.bintray.com/pathrik/PathriK</url>
-	    </repository>
+		<repository>
+			<id>jaudiotagger-repository</id>
+			<url>https://dl.bintray.com/pathrik/PathriK</url>
+		</repository>
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -90,65 +90,67 @@
 					</execution>
 				</executions>
 			</plugin>
-         <plugin>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-source-plugin</artifactId>
-            <version>2.4</version>
-           <executions>
-             <execution>
-                <id>attach-sources</id>
-                <goals>
-                  <goal>jar</goal>
-                </goals>
-             </execution>
-           </executions>
-         </plugin>
-         <plugin>
-           <groupId>org.apache.maven.plugins</groupId>
-           <artifactId>maven-javadoc-plugin</artifactId>
-           <version>2.10.3</version>
-           <configuration>
-             <additionalparam>-Xdoclint:none</additionalparam>
-           </configuration>
-           <executions>
-             <execution>
-                <id>attach-javadocs</id>
-                <goals>
-                   <goal>jar</goal>
-                </goals>
-             </execution>
-           </executions>
-         </plugin>
-         <plugin>
-            <artifactId>maven-release-plugin</artifactId>
-            <version>2.5.2</version>
-            <configuration>
-               <useReleaseProfile>false</useReleaseProfile>
-               <releaseProfiles>release</releaseProfiles>
-               <autoVersionSubmodules>true</autoVersionSubmodules>
-            </configuration>
-         </plugin>			
-		</plugins>		
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.3</version>
+				<configuration>
+					<additionalparam>-Xdoclint:none</additionalparam>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.2</version>
+				<configuration>
+					<useReleaseProfile>false</useReleaseProfile>
+					<releaseProfiles>release</releaseProfiles>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
-   <scm>
-   
-      <connection>https://github.com/PathriK/GaanaExtractor.git</connection>
-      <developerConnection>https://github.com/PathriK/GaanaExtractor.git</developerConnection>
-      <url>https://github.com/PathriK/GaanaExtractor</url>
-      <tag>HEAD</tag>
-   </scm>
-   <distributionManagement>
-      <repository>
-         <id>bintray-pathrik-PathriK</id>
-         <name>pathrik-PathriK</name>
-         <url>https://api.bintray.com/maven/pathrik/PathriK/GaanaExtractor/;publish=1</url>
-      </repository>
-<snapshotRepository>
-<id>bintray-pathrik-PathriK-snapshots</id>
- <url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url> </snapshotRepository>      
-   </distributionManagement>		
+	<scm>
+
+		<connection>https://github.com/PathriK/GaanaExtractor.git</connection>
+		<developerConnection>https://github.com/PathriK/GaanaExtractor.git</developerConnection>
+		<url>https://github.com/PathriK/GaanaExtractor</url>
+		<tag>HEAD</tag>
+	</scm>
+	<distributionManagement>
+		<repository>
+			<id>bintray-pathrik-PathriK</id>
+			<name>pathrik-PathriK</name>
+			<url>https://api.bintray.com/maven/pathrik/PathriK/GaanaExtractor/;publish=1</url>
+		</repository>
+		<snapshotRepository>
+			<id>bintray-pathrik-PathriK-snapshots</id>
+			<name>pathrik-PathriK-snapshots</name>
+			<url>http://oss.jfrog.org/artifactory/oss-snapshot-local</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
