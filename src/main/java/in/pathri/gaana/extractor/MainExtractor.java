@@ -48,7 +48,7 @@ public class MainExtractor {
 	static List<String> data404 = new ArrayList<String>();
 	static List<String> fileReadError = new ArrayList<String>();
 	static List<String> fileWriteError = new ArrayList<String>();
-	static Map<String, ArrayList<String>> fileTagError = new HashMap<String,ArrayList<String>>();
+	static Map<String, ArrayList<String>> fileTagError = new HashMap<String, ArrayList<String>>();
 	static String srcDir = "";
 
 	public static void main(String[] args) {
@@ -56,36 +56,44 @@ public class MainExtractor {
 		logger.entry(args);
 		String songsDir = "";
 		boolean toAlbumFolder = true;
-		if(args.length == 0){
+		if (args.length == 0) {
 			songsDir = System.getProperty("user.dir");
-			logger.info("**NOTE**:Using the current location of JAR as the location of songs. To override please start with the song location as an argument to the JAR");
-		}else if(args.length == 1){
+			logger.info(
+					"**NOTE**:Using the current location of JAR as the location of songs. To override please start with the song location as an argument to the JAR");
+		} else if (args.length == 1) {
 			songsDir = args[0];
-			logger.info("**NOTE**:Converted songs will be grouped into folders based on their Albums. To disable please supply 'false' as a second argument to the JAR");
-		}else{
+			logger.info(
+					"**NOTE**:Converted songs will be grouped into folders based on their Albums. To disable please supply 'false' as a second argument to the JAR");
+		} else {
 			songsDir = args[0];
 			toAlbumFolder = Boolean.valueOf(args[1]);
 		}
-		
+
 		songsDir = songsDir.replace("\\", "/");
 		srcDir = songsDir.replace("/", "\\");
-		logger.info("**NOTE**:Songs Source Directory::{}",songsDir);
-		if(toAlbumFolder){
+		logger.info("**NOTE**:Songs Source Directory::{}", songsDir);
+		if (toAlbumFolder) {
 			logger.info("**NOTE**:Songs will be grouped into Folders based on Album names");
-		}else{
+		} else {
 			logger.info("**NOTE**:Songs will be converted as is");
-		}		
+		}
 		logger.info(System.lineSeparator());
 
 		extract(songsDir, toAlbumFolder);
 
 		logger.traceExit();
 	}
-	
+
 	/**
-	 * Converts Gaana downloaded music files (named in numbers) to playable audio files with appropriate File Name and Tags 
-	 * @param srcPath		absolute path of the downloaded music files in String format with '/' as the folder separator 
-	 * @param toAlbumFolder	If true, will group music files in folders with Album as their folder names
+	 * Converts Gaana downloaded music files (named in numbers) to playable
+	 * audio files with appropriate File Name and Tags
+	 * 
+	 * @param srcPath
+	 *            absolute path of the downloaded music files in String format
+	 *            with '/' as the folder separator
+	 * @param toAlbumFolder
+	 *            If true, will group music files in folders with Album as their
+	 *            folder names
 	 */
 
 	public static void extract(String srcPath, boolean toAlbumFolder) {
@@ -98,7 +106,7 @@ public class MainExtractor {
 		if (songMeta != null) {
 			copyConvert(fileIds, songMeta, trgtPath, toAlbumFolder);
 		}
-		logger.info("{}",() -> prepareFinalStats());
+		logger.info("{}", () -> prepareFinalStats());
 		logger.traceExit();
 	}
 
@@ -107,18 +115,19 @@ public class MainExtractor {
 		logger.entry(fileIds, songMeta, trgtPath, toAlbumFolder);
 		for (Entry<Integer, Path> fileEntry : fileIds.entrySet()) {
 			String fileName = fileEntry.getKey().toString();
-			ArrayList<String> tagErrors = new ArrayList<String>();			
+			ArrayList<String> tagErrors = new ArrayList<String>();
 			File srcFile = fileEntry.getValue().toFile();
-			logger.info("Converting:: {}",srcFile.getAbsolutePath().replace(srcDir, ""));
+			logger.info("Converting:: {}", srcFile.getAbsolutePath().replace(srcDir, ""));
 			try {
 				AudioFile f;
 				f = AudioFileIO.readMagic(srcFile);
 				Tag tag = f.getTagOrCreateAndSetDefault();
-				String strBasePath = "$.tracks[?(@.track_id==" + fileName + ")].";
+				String strBaseObjPath = "$.tracks[?(@.track_id==" + fileName + ")]";
+				String strBasePath = strBaseObjPath + ".";
 
 				JSONArray trackTitle = (JSONArray) JsonPath.read(songMeta, strBasePath + "track_title");
 				JSONArray seoKey = (JSONArray) JsonPath.read(songMeta, strBasePath + "seokey");
-				String strFileName = generateUniqueFileName(trackTitle,seoKey);
+				String strFileName = generateUniqueFileName(trackTitle, seoKey);
 				if (!strFileName.isEmpty()) {
 					String trgFolderPath = trgtPath;
 
@@ -145,6 +154,15 @@ public class MainExtractor {
 					}
 
 					try {
+						strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "release_date")).get(0);
+						tag.setField(FieldKey.YEAR, strData);
+					} catch (KeyNotFoundException | FieldDataInvalidException e) {
+						tagErrors.add("YEAR");
+						logger.catching(e);
+
+					}
+
+					try {
 						strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "track_title")).get(0);
 						tag.setField(FieldKey.TITLE, strData);
 					} catch (KeyNotFoundException | FieldDataInvalidException e) {
@@ -162,15 +180,15 @@ public class MainExtractor {
 
 					try {
 						JSONArray arrData = (JSONArray) JsonPath.read(songMeta, strBasePath + "artist[*].name");
-						logger.debug("ArtistContents::{}",arrData.toJSONString());
+						logger.debug("ArtistContents::{}", arrData.toJSONString());
 						for (Object datum : arrData) {
-							String artistName = (String)datum;
-							logger.debug("Artist::{}",artistName);
+							String artistName = (String) datum;
+							logger.debug("Artist::{}", artistName);
 							artistName = artistName.trim();
-							if(!artistName.isEmpty()){
-								tag.addField(FieldKey.ALBUM_ARTIST, artistName);		
+							if (!artistName.isEmpty()) {
+								tag.addField(FieldKey.ALBUM_ARTIST, artistName);
 							}
-						}						
+						}
 					} catch (KeyNotFoundException | FieldDataInvalidException e) {
 						tagErrors.add("ARTIST");
 						logger.catching(e);
@@ -178,31 +196,55 @@ public class MainExtractor {
 
 					try {
 						JSONArray arrData = (JSONArray) JsonPath.read(songMeta, strBasePath + "gener[*].name");
-						logger.debug("GenreContents::{}",arrData.toJSONString());
+						logger.debug("GenreContents::{}", arrData.toJSONString());
 						for (Object datum : arrData) {
-							String genreName = (String)datum;
-							logger.debug("Genre::{}",genreName);
+							String genreName = (String) datum;
+							logger.debug("Genre::{}", genreName);
 							genreName = genreName.trim();
-							if(!genreName.isEmpty()){
-								tag.addField(FieldKey.GENRE, genreName);		
+							if (!genreName.isEmpty()) {
+								tag.addField(FieldKey.GENRE, genreName);
 							}
-						}						
+						}
 					} catch (KeyNotFoundException | FieldDataInvalidException e) {
 						tagErrors.add("GENRE");
 						logger.catching(e);
 					}
-										
+
+					// try {
+					// strData = (String) ((JSONArray) JsonPath.read(songMeta,
+					// strBasePath + "artwork")).get(0);
+					// byte[] strImgData = getByteArray(strData);
+					// Artwork artwork = ArtworkFactory.getNew();
+					// artwork.setBinaryData(strImgData);
+					// tag.setField(artwork);
+					// } catch (KeyNotFoundException | FieldDataInvalidException
+					// | UnsupportedOperationException e) {
+					// tagErrors.add("ART_WORK");
+					// logger.catching(e);
+					// }
+
 					try {
-						strData = (String) ((JSONArray) JsonPath.read(songMeta, strBasePath + "artwork")).get(0);
-						byte[] strImgData = getByteArray(strData);
-						Artwork artwork = ArtworkFactory.getNew();
-						artwork.setBinaryData(strImgData);
-						tag.setField(artwork);
+						logger.debug(strBaseObjPath);
+//						Object a = JsonPath.read(songMeta, strBaseObjPath);
+//						JSONArray b = (JSONArray)a;
+//						Object c = b.get(0);
+//						JSONObject songObj = (JSONObject)c;
+						JSONObject songObj = (JSONObject)((JSONArray) JsonPath.read(songMeta, strBaseObjPath)).get(0);
+						strData = getAlbumURL(songObj);
+						if (strData.isEmpty()) {
+							tagErrors.add("ART_WORK");
+						} else {
+							byte[] strImgData = getByteArray(strData);
+							Artwork artwork = ArtworkFactory.getNew();
+							artwork.setBinaryData(strImgData);
+							tag.setField(artwork);
+						}
 					} catch (KeyNotFoundException | FieldDataInvalidException | UnsupportedOperationException e) {
 						tagErrors.add("ART_WORK");
 						logger.catching(e);
 					}
-					if(!tagErrors.isEmpty()){
+
+					if (!tagErrors.isEmpty()) {
 						fileTagError.put(fileName, tagErrors);
 					}
 
@@ -225,8 +267,8 @@ public class MainExtractor {
 	}
 
 	private static String generateUniqueFileName(JSONArray trackTitle, JSONArray seoKey) {
-		logger.entry(trackTitle,seoKey);
-		if(trackTitle.isEmpty() || seoKey.isEmpty()){
+		logger.entry(trackTitle, seoKey);
+		if (trackTitle.isEmpty() || seoKey.isEmpty()) {
 			logger.traceExit("EMPTY STRING");
 			return "";
 		}
@@ -234,27 +276,25 @@ public class MainExtractor {
 		logger.debug("title::" + title);
 		String key = seoKey.get(0).toString();
 		logger.debug("key::" + key);
-		if(key.isEmpty()){
+		if (key.isEmpty()) {
 			logger.traceExit("Original Title::{}", title);
 			return title;
 		}
-		key = key.replace("-"," ");
-		logger.debug("ReplacedKey::{}",key);
+		key = key.replace("-", " ");
+		logger.debug("ReplacedKey::{}", key);
 		String[] splitTitle = title.split(" ");
 		for (String titleWord : splitTitle) {
-			logger.debug("ReplacingWord::{}",titleWord);
-			key = key.replace(titleWord.toLowerCase(),"");
-			logger.debug("ReplacedKey::{}",key);
+			logger.debug("ReplacingWord::{}", titleWord);
+			key = key.replace(titleWord.toLowerCase(), "");
+			logger.debug("ReplacedKey::{}", key);
 		}
 		key = key.trim();
-		if(!key.isEmpty()){
+		if (!key.isEmpty()) {
 			title = title + " (" + key + ")";
-		}		
+		}
 		logger.traceExit("Computed Title::{}", title);
 		return title;
 	}
-
-
 
 	private static JSONObject getSongsDetail(Map<Integer, Path> fileIds) {
 		logger.entry(fileIds);
@@ -266,7 +306,7 @@ public class MainExtractor {
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("type", "song");
 		params.put("subtype", "song_detail");
-		
+
 		if (!fileIds.isEmpty()) {
 			int i = 0;
 			String strFileIds = "";
@@ -311,7 +351,7 @@ public class MainExtractor {
 		logger.entry(endPoint, params);
 		try {
 			String songMeta = HTTPHelper.sendGet(endPoint, params);
-			logger.debug("SongMeta::{}",songMeta);
+			logger.debug("SongMeta::{}", songMeta);
 			logger.traceExit(songMeta);
 			return (JSONObject) JSONValue.parse(songMeta);
 		} catch (Exception e) {
@@ -328,13 +368,13 @@ public class MainExtractor {
 		FileVisitor<Path> fv = new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-				logger.entry(file,attrs);
+				logger.entry(file, attrs);
 				if (file.getFileName().toString().matches("\\d+")) {
 					Integer id = Integer.parseInt(file.getFileName().toString());
 					Path path = file;
 					fileIds.put(id, path);
 				} else {
-					//Ignoring Non numeric files
+					// Ignoring Non numeric files
 				}
 				logger.traceExit(FileVisitResult.CONTINUE);
 				return FileVisitResult.CONTINUE;
@@ -351,8 +391,7 @@ public class MainExtractor {
 
 	}
 
-	
-// Utility Methods	
+	// Utility Methods
 	private static byte[] getByteArray(String strURL) {
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -380,67 +419,97 @@ public class MainExtractor {
 		}
 		return null;
 	}
-	
-	private static String prepareFinalStats(){
+
+	private static String getAlbumURL(JSONObject songObj) {
+		logger.entry(songObj);
+		String strAlbumURL = "";
+		if (songObj.containsKey("artwork_large")) {
+			strAlbumURL = (String) songObj.get("artwork_large");
+			if (!strAlbumURL.isEmpty()) {
+				logger.traceExit(strAlbumURL);
+				return strAlbumURL;
+			}
+		}
+		if (songObj.containsKey("artwork_web")) {
+			strAlbumURL = (String) songObj.get("artwork_web");
+			if (!strAlbumURL.isEmpty()) {
+				logger.traceExit(strAlbumURL);
+				return strAlbumURL;
+			}
+		}
+		if (songObj.containsKey("artwork")) {
+			strAlbumURL = (String) songObj.get("artwork");
+			if (!strAlbumURL.isEmpty()) {
+				logger.traceExit(strAlbumURL);
+				return strAlbumURL;
+			}
+		}		
+		logger.traceExit(strAlbumURL);
+		return strAlbumURL;
+	}
+
+	private static String prepareFinalStats() {
 		String statValue = "";
-		final String NONE_VALUE= "NONE";
+		final String NONE_VALUE = "NONE";
 		boolean hasError = false;
 		String finalStatus = "";
-		StringBuilder finalStats = new StringBuilder();		
-		
+		StringBuilder finalStats = new StringBuilder();
+
 		finalStats.append("File Data Not Found :: ");
 		statValue = data404.stream().collect(Collectors.joining(";"));
-		statValue = statValue.isEmpty()?NONE_VALUE:statValue;
+		statValue = statValue.isEmpty() ? NONE_VALUE : statValue;
 		finalStats.append(statValue);
-		if(!statValue.equals(NONE_VALUE)){
+		if (!statValue.equals(NONE_VALUE)) {
 			hasError = true;
 		}
 
 		finalStats.append(System.lineSeparator());
-		
+
 		finalStats.append("File Read Error :: ");
 		statValue = fileReadError.stream().collect(Collectors.joining(";"));
-		statValue = statValue.isEmpty()?NONE_VALUE:statValue;
+		statValue = statValue.isEmpty() ? NONE_VALUE : statValue;
 		finalStats.append(statValue);
-		if(!statValue.equals(NONE_VALUE)){
+		if (!statValue.equals(NONE_VALUE)) {
 			hasError = true;
 		}
-		
+
 		finalStats.append(System.lineSeparator());
-		
+
 		finalStats.append("File Write Error :: ");
 		statValue = fileWriteError.stream().collect(Collectors.joining(";"));
-		statValue = statValue.isEmpty()?NONE_VALUE:statValue;
+		statValue = statValue.isEmpty() ? NONE_VALUE : statValue;
 		finalStats.append(statValue);
-		if(!statValue.equals(NONE_VALUE)){
+		if (!statValue.equals(NONE_VALUE)) {
 			hasError = true;
 		}
-		
+
 		finalStats.append(System.lineSeparator());
-		
+
 		finalStats.append("File Tag Error ::");
-		if(fileTagError.isEmpty()){
+		if (fileTagError.isEmpty()) {
 			finalStats.append(NONE_VALUE);
-		}else{
+		} else {
 			hasError = true;
 			finalStats.append(System.lineSeparator());
-			for(Entry<String, ArrayList<String>> entry : fileTagError.entrySet()){
+			for (Entry<String, ArrayList<String>> entry : fileTagError.entrySet()) {
 				finalStats.append("\tFile Name :: ");
 				finalStats.append(entry.getKey());
 				finalStats.append("Tags :: ");
 				finalStats.append(entry.getValue().stream().collect(Collectors.joining(";")));
 				finalStats.append(System.lineSeparator());
-			}			
+			}
 		}
-		
-		if(hasError){
-			finalStatus = System.lineSeparator() + "COMPLETED with ERRORS. Following are the details:" + System.lineSeparator() + System.lineSeparator();
-		}else{
-			finalStatus = System.lineSeparator() + "COMPLETED without any ERRORS." + System.lineSeparator() + System.lineSeparator();
+
+		if (hasError) {
+			finalStatus = System.lineSeparator() + "COMPLETED with ERRORS. Following are the details:"
+					+ System.lineSeparator() + System.lineSeparator();
+		} else {
+			finalStatus = System.lineSeparator() + "COMPLETED without any ERRORS." + System.lineSeparator()
+					+ System.lineSeparator();
 		}
-		
+
 		finalStats.insert(0, finalStatus);
-		
-		return finalStats.toString();		
-	}	
+
+		return finalStats.toString();
+	}
 }
