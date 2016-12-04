@@ -128,6 +128,10 @@ public class MainExtractor {
 				JSONArray trackTitle = (JSONArray) JsonPath.read(songMeta, strBasePath + "track_title");
 				JSONArray seoKey = (JSONArray) JsonPath.read(songMeta, strBasePath + "seokey");
 				String strFileName = generateUniqueFileName(trackTitle, seoKey);
+				if(!strFileName.isEmpty()){
+					strFileName = FileNameCleaner.cleanFileName(strFileName);
+//					strFileName = strFileName.trim();
+				}
 				if (!strFileName.isEmpty()) {
 					String trgFolderPath = trgtPath;
 
@@ -135,7 +139,8 @@ public class MainExtractor {
 						String strFolderName = (String) ((JSONArray) JsonPath.read(songMeta,
 								strBasePath + "album_title")).get(0);
 						strFolderName = FileNameCleaner.cleanFileName(strFolderName);
-
+						strFolderName = strFolderName.trim();
+						
 						trgFolderPath = trgFolderPath + "/" + strFolderName;
 					}
 					File trgtFolder = new File(trgFolderPath);
