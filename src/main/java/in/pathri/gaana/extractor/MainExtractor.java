@@ -229,11 +229,6 @@ public class MainExtractor {
 					// }
 
 					try {
-						logger.debug(strBaseObjPath);
-//						Object a = JsonPath.read(songMeta, strBaseObjPath);
-//						JSONArray b = (JSONArray)a;
-//						Object c = b.get(0);
-//						JSONObject songObj = (JSONObject)c;
 						JSONObject songObj = (JSONObject)((JSONArray) JsonPath.read(songMeta, strBaseObjPath)).get(0);
 						strData = getAlbumURL(songObj);
 						if (strData.isEmpty()) {
