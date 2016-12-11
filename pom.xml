@@ -135,9 +135,8 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 	</properties>
 	<scm>
-
-		<connection>https://github.com/PathriK/GaanaExtractor.git</connection>
-		<developerConnection>https://github.com/PathriK/GaanaExtractor.git</developerConnection>
+		<connection>scm:git:git@github.com:PathriK/GaanaExtractor.git</connection>
+		<developerConnection>scm:git:git@github.com:PathriK/GaanaExtractor.git</developerConnection>
 		<url>https://github.com/PathriK/GaanaExtractor</url>
 		<tag>HEAD</tag>
 	</scm>
