@@ -1,3 +1,5 @@
+[![Join the chat at https://gitter.im/PathriK/GaanaExtractor](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/PathriK/GaanaExtractor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/PathriK/GaanaExtractor.svg?branch=master)](https://travis-ci.org/PathriK/GaanaExtractor)
+
 # Gaana Extractor
 
 A Java tool to convert songs downloaded using Gaana App to MP3 files.
@@ -22,7 +24,7 @@ Also there is an option to organise the songs into folders named under their Alb
 
 ## Usage:
 
-0. Download the JAR file from the binaries folder.
+0. Download the latest JAR.
 1. Retrieve the downloaded songs from your mobile and copy to a specific folder. Lets assume the folder structure to be **C:\\Gaana\\Songs\\** [Ways to do this coming soon..]
 2. Place the **GaanaExtractor-<version>.jar** in the parent folder **C:\\Gaana\\**
 3. Open a command prompt and navigate to **C:\\Gaana\\**
@@ -37,7 +39,16 @@ Also there is an option to organise the songs into folders named under their Alb
 
 **Note2** : If there is any error during conversion, please share the log file with me. The log file can be found in the same directory as that of the jar file. It will be under the name **GaanaExtractor.log**. If there was no error during conversion, the log file can be deleted.
 
+## Downloads:
+https://github.com/PathriK/GaanaExtractor/releases
+
+## Contact:
+Gmail: pathrikumark@gmail.com
+
+Gitter: https://gitter.im/PathriK/GaanaExtractor
+
 ## CHANGELOG:
+v2: Multiple Fixes and More Tag Support
 
 v2.0-BETA: Nearly every song should get converted now 
 - Fixed issue which was causing conversion to fail for lot of songs 
@@ -57,5 +68,3 @@ v1.1:
 
 v1.0:
 - Initial Release
-
-[![Join the chat at https://gitter.im/PathriK/GaanaExtractor](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/PathriK/GaanaExtractor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
