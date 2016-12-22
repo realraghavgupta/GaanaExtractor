@@ -17,8 +17,8 @@ public class HTTPHelper {
 	private final static String APP_VERSION = "V7";
 	private final static String DEVICE_TYPE = "GaanaAndroidApp";	
 	private final static String CONTENT_TYPE = "application/x-www-form-urlencoded; charset=UTF-8";
-//	private final static String DEVICE_ID = "1234567890";
-	//private final static String GAANA_APP_VERSION = "gaanaAndroid-7.3.0";
+	private final static String DEVICE_ID = "1234567890";
+	private final static String GAANA_APP_VERSION = "gaanaAndroid-7.3.0";
 	
 	static final Logger logger = LogManager.getLogger();
 
@@ -35,7 +35,7 @@ public class HTTPHelper {
 		}).collect(Collectors.joining("&"));
 
 //		endPoint = endPoint + (endPoint.endsWith("/") ? "?" : "/?");
-		endPoint = endPoint + "/?";
+		endPoint = endPoint + "?";
 		endPoint = endPoint + query;
 		logger.debug("EndPoint:: {}",endPoint);
 		URL obj = new URL(endPoint);
@@ -91,8 +91,8 @@ public class HTTPHelper {
 		con.setRequestProperty("appVersion", APP_VERSION);
 		con.setRequestProperty("deviceType", DEVICE_TYPE);
 		con.setRequestProperty("Content-Type", CONTENT_TYPE);
-//		con.setRequestProperty("deviceId", DEVICE_ID);
-//		con.setRequestProperty("gaanaAppVersion", GAANA_APP_VERSION);
+		con.setRequestProperty("deviceId", DEVICE_ID);
+		con.setRequestProperty("gaanaAppVersion", GAANA_APP_VERSION);
 		
 		logger.debug("Connection Req Properties:: {}",con.getRequestProperties());
 		// int responseCode = con.getResponseCode();
