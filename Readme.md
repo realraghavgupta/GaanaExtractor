@@ -48,6 +48,8 @@ Gmail: pathrikumark@gmail.com
 Gitter: https://gitter.im/PathriK/GaanaExtractor
 
 ## CHANGELOG:
+v2.1: Minor changes
+
 v2: Multiple Fixes and More Tag Support
 
 v2.0-BETA: Nearly every song should get converted now 
