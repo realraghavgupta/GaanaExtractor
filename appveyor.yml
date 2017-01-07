@@ -1,0 +1,22 @@
+version: '1.0-SNAPSHOT.{build}'
+
+branches:
+  only:
+    - master
+    
+os: Windows Server 2012
+  
+install:
+  - ps: $env:POM_VERSION = ([xml](Get-Content .\pom.xml)).project.version
+  - ps: Update-AppveyorBuild -Version "$env:POM_VERSION.$env:APPVEYOR_BUILD_NUMBER"
+  
+build_script:
+  - mvn clean install -Dmaven.test.skip=true
+  
+test: off
+
+artifacts:
+  - path: binaries\*$(POM_VERSION).zip
+    name: SnapshotReleases
+cache:
+  - C:\Users\appveyor\.m2

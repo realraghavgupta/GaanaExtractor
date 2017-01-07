@@ -369,8 +369,8 @@ public class MainExtractor {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 				logger.entry(file, attrs);
-				if (file.getFileName().toString().matches("\\d+")) {
-					Integer id = Integer.parseInt(file.getFileName().toString());
+				Integer id = getFileId(file.getFileName().toString());				
+				if (id != 0) {
 					Path path = file;
 					fileIds.put(id, path);
 				} else {
@@ -511,5 +511,14 @@ public class MainExtractor {
 		finalStats.insert(0, finalStatus);
 
 		return finalStats.toString();
+	}
+	
+	private static Integer getFileId(String fileName){
+		Integer result = 0;
+		String fileId = fileName.split("_")[0];		
+		if(fileId.matches("\\d+")){
+			result = Integer.parseInt(fileId);
+		}
+		return result;
 	}
 }
