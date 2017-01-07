@@ -16,7 +16,7 @@ build_script:
 test: off
 
 artifacts:
-  - path: binaries\*$(POM_VERSION).zip
+  - path: binaries\*$(POM_VERSION).jar
     name: SnapshotReleases
 cache:
   - C:\Users\appveyor\.m2
