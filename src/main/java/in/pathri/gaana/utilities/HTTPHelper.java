@@ -49,6 +49,7 @@ public class HTTPHelper {
 		con.setRequestProperty("appVersion", APP_VERSION);
 		con.setRequestProperty("deviceType", DEVICE_TYPE);
 		con.setRequestProperty("Content-Type", CONTENT_TYPE);
+		con.setRequestProperty("deviceId", DEVICE_ID);
 		logger.debug("Connection Req Properties:: {}",con.getRequestProperties());
 		// int responseCode = con.getResponseCode();
 		// System.out.println("Response Code : " + responseCode);
