@@ -1,4 +1,11 @@
-[![Join the chat at https://gitter.im/PathriK/GaanaExtractor](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/PathriK/GaanaExtractor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/PathriK/GaanaExtractor.svg?branch=master)](https://travis-ci.org/PathriK/GaanaExtractor)
+[![Join the chat at https://gitter.im/PathriK/GaanaExtractor](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/PathriK/GaanaExtractor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/PathriK/GaanaExtractor.svg?branch=master)](https://travis-ci.org/PathriK/GaanaExtractor) [![Build status](https://ci.appveyor.com/api/projects/status/f14f957cxmy8d6l1?svg=true)](https://ci.appveyor.com/project/PathriK/gaanaextractor)
+
+<pre>
+<b>Update:</b>
+    Have released a new tool named <a href="https://github.com/PathriK/GaanaDownloader">GaanaDownloader</a>.
+    Using that we would be able to Search and Download songs from Gaana. :)
+    <i><b>Note:</b> Gaana Plus subscription is required </i>
+</pre>
 
 # Gaana Extractor
 
@@ -40,7 +47,14 @@ Also there is an option to organise the songs into folders named under their Alb
 **Note2** : If there is any error during conversion, please share the log file with me. The log file can be found in the same directory as that of the jar file. It will be under the name **GaanaExtractor.log**. If there was no error during conversion, the log file can be deleted.
 
 ## Downloads:
+
+Releases:
+
 https://github.com/PathriK/GaanaExtractor/releases
+
+Latest Snapshot (v2.3): 
+
+https://ci.appveyor.com/api/projects/PathriK/GaanaExtractor/artifacts/binaries/GaanaExtractor-2.3-SNAPSHOT.jar
 
 ## Contact:
 Gmail: pathrikumark@gmail.com
@@ -48,6 +62,8 @@ Gmail: pathrikumark@gmail.com
 Gitter: https://gitter.im/PathriK/GaanaExtractor
 
 ## CHANGELOG:
+v2.2: Minor changes
+
 v2.1: Minor changes
 
 v2: Multiple Fixes and More Tag Support
