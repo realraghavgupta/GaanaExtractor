@@ -52,9 +52,9 @@ Releases:
 
 https://github.com/PathriK/GaanaExtractor/releases
 
-Latest Snapshot (v2.3): 
+Latest Snapshot (v2.5): 
 
-https://ci.appveyor.com/api/projects/PathriK/GaanaExtractor/artifacts/binaries/GaanaExtractor-2.3-SNAPSHOT.jar
+https://ci.appveyor.com/api/projects/PathriK/GaanaExtractor/artifacts/binaries/GaanaExtractor-2.5-SNAPSHOT.jar
 
 ## Contact:
 Gmail: pathrikumark@gmail.com
@@ -62,6 +62,11 @@ Gmail: pathrikumark@gmail.com
 Gitter: https://gitter.im/PathriK/GaanaExtractor
 
 ## CHANGELOG:
+
+v2.4: GET Header modification for fixing download request giving encrypted data
+
+v2.3: GET Header modification for inclusion of more search results
+
 v2.2: Minor changes
 
 v2.1: Minor changes

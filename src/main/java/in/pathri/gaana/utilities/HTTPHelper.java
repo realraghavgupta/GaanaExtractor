@@ -50,7 +50,9 @@ public class HTTPHelper {
 		con.setRequestProperty("deviceType", DEVICE_TYPE);
 		con.setRequestProperty("Content-Type", CONTENT_TYPE);
 		con.setRequestProperty("deviceId", DEVICE_ID);
-		con.setRequestProperty("gaanaAppVersion", GAANA_APP_VERSION);
+		if(!params.containsKey("delivery_type")){
+			con.setRequestProperty("gaanaAppVersion", GAANA_APP_VERSION);
+		}
 		
 		logger.debug("Connection Req Properties:: {}",con.getRequestProperties());
 		// int responseCode = con.getResponseCode();
