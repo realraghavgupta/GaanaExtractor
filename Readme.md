@@ -52,9 +52,9 @@ Releases:
 
 https://github.com/PathriK/GaanaExtractor/releases
 
-Latest Snapshot (v2.5): 
+Latest Snapshot (v2.6): 
 
-https://ci.appveyor.com/api/projects/PathriK/GaanaExtractor/artifacts/binaries/GaanaExtractor-2.5-SNAPSHOT.jar
+https://ci.appveyor.com/api/projects/PathriK/GaanaExtractor/artifacts/binaries/GaanaExtractor-2.6-SNAPSHOT.jar
 
 ## Contact:
 Gmail: pathrikumark@gmail.com
@@ -62,6 +62,8 @@ Gmail: pathrikumark@gmail.com
 Gitter: https://gitter.im/PathriK/GaanaExtractor
 
 ## CHANGELOG:
+
+v2.5: HTTPHelper modification to remove logging (password) for 'user.php' (login) requests
 
 v2.4: GET Header modification for fixing download request giving encrypted data
 

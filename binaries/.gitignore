@@ -1,5 +1,5 @@
 #****Only Zip Files****
 *
-!*.zip
-*.SNAPSHOT.zip
 !.gitignore
+!*.jar
+*-SNAPSHOT.jar
