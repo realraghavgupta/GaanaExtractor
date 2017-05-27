@@ -73,7 +73,9 @@ public class HTTPHelper {
 
 	// HTTP POST request
 	public static String sendPost(String endPoint, Map<String, String> params) throws Exception {
-		logger.entry(endPoint,params);
+		if(!endPoint.endsWith("user.php")){
+			logger.entry(endPoint,params);	
+		}		
 		String postData = params.entrySet().stream().map(param -> {
 			try {
 				return URLEncoder.encode(param.getKey(), "UTF-8") + "=" + URLEncoder.encode(param.getValue(), "UTF-8");
