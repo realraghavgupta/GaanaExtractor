@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>in.pathri.gaana</groupId>
 	<artifactId>GaanaExtractor</artifactId>
-	<version>2.5</version>
+	<version>2.6-SNAPSHOT</version>
 	<name>GaanaExtractor</name>
 	<description>Extracts Songs from Gaana Android App</description>
 	<url>https://github.com/PathriK/GaanaExtractor</url>
@@ -136,7 +136,7 @@
 		<connection>scm:git:git@github.com:PathriK/GaanaExtractor.git</connection>
 		<developerConnection>scm:git:git@github.com:PathriK/GaanaExtractor.git</developerConnection>
 		<url>https://github.com/PathriK/GaanaExtractor</url>
-		<tag>GaanaExtractor-2.5</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<distributionManagement>
 		<repository>
