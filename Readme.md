@@ -1,6 +1,14 @@
 [![Join the chat at https://gitter.im/PathriK/GaanaExtractor](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/PathriK/GaanaExtractor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/PathriK/GaanaExtractor.svg?branch=master)](https://travis-ci.org/PathriK/GaanaExtractor) [![Build status](https://ci.appveyor.com/api/projects/status/f14f957cxmy8d6l1?svg=true)](https://ci.appveyor.com/project/PathriK/gaanaextractor)
 
 <pre>
+<b>IMPORTANT NOTE:</b>
+The latest veersion of Gaana Mobile App has updated the way they handle downloads. 
+The files that are generated having the extension '.e' <b>DOES NOT WORK</b> with this utility.
+
+The only workaround is to use an APK (Google should help) to install an older version of Gaana.
+</pre>
+
+<pre>
 <b>Update:</b>
     Have released a new tool named <a href="https://github.com/PathriK/GaanaDownloader">GaanaDownloader</a>.
     Using that we would be able to Search and Download songs from Gaana. :)
