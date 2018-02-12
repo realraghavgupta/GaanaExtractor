@@ -1,6 +1,16 @@
 [![Join the chat at https://gitter.im/PathriK/GaanaExtractor](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/PathriK/GaanaExtractor?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build Status](https://travis-ci.org/PathriK/GaanaExtractor.svg?branch=master)](https://travis-ci.org/PathriK/GaanaExtractor) [![Build status](https://ci.appveyor.com/api/projects/status/f14f957cxmy8d6l1?svg=true)](https://ci.appveyor.com/project/PathriK/gaanaextractor)
 
 <pre>
+<b>
+I am extremely sorry. 
+Currently I am not able to continue supporting this project and not sure whether this tool is still working. 
+Would be happy to transfer ownership to anyone who would like to continue developing/maintaining this tool
+under one condition that this always stays as open source and free. 
+Kindly mail me @ pathrikumark@gmail.com if any one is interested
+</b>
+</pre>
+
+<pre>
 <b>IMPORTANT NOTE:</b>
 The latest veersion of Gaana Mobile App has updated the way they handle downloads. 
 The files that are generated having the extension '.e' <b>DOES NOT WORK</b> with this utility.
